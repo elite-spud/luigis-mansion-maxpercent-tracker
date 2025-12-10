@@ -102,7 +102,6 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
 }
 
 function getHorizontalMapLocation(baseLocation) {
-    console.log(currentGameVersion);
     if (currentGameVersion === GameVersion.NTSC) {
         return baseLocation;
     }
