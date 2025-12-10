@@ -90,21 +90,26 @@ function deserializeChests(serializedChests) {
     }
 }
 
+function getChestId(chestIndex) {
+    return `chest-${chestIndex}`;
+}
+
 // Event of clicking a chest on the map
-function toggleChest(x) {
-	if (chests[x].state != 4 && chests[x].state != 3){
-		chests[x].state += 1;
+function toggleChest(chestIndex) {
+    // TODO: allow retoggling of green spots
+	if (chests[chestIndex].state != 4 && chests[chestIndex].state != 3){
+		chests[chestIndex].state += 1;
 	}
 	var maxStates = 0;
 	if (mode == 0)
 		maxStates = 1;
 	if (mode == 1)
 		maxStates = 2;
-	if(chests[x].state != 4)
-		if (chests[x].state > maxStates)
-			chests[x].state = 0;
+	if(chests[chestIndex].state != 4)
+		if (chests[chestIndex].state > maxStates)
+			chests[chestIndex].state = 0;
 	
-    refreshChest(x);
+    refreshChest(chestIndex);
     saveCookie();
 }
 
@@ -126,9 +131,9 @@ function loadChests(){
 	}
 }
 
-function refreshChest(x) {
-    var stateClass = chests[x].isAvailable() ? 'available' : chests[x].isAvailable();
-	switch (chests[x].state)
+function refreshChest(chestIndex) {
+    var stateClass = chests[chestIndex].isAvailable() ? 'available' : chests[chestIndex].isAvailable();
+	switch (chests[chestIndex].state)
 	{
 		case order[0]:
 			stateClass = 'available';
@@ -143,28 +148,21 @@ function refreshChest(x) {
 			stateClass = 'saved';
 			break;
 	}
-    document.getElementById(x).className = 'mapspan chest ' + stateClass;
+    const chestId = getChestId(chestIndex);
+    document.getElementById(chestId).className = 'mapspan chest ' + stateClass;
 }
 
+const highlightedUrl = `url("images/highlighted.png")`;
 // Highlights a chest location
-function highlight(x) {
-    document.getElementById(x).style.backgroundImage = 'url(images/highlighted.png)';
+function highlight(elementId) {
+    const currentBackgroundImage = document.getElementById(elementId).style.backgroundImage;
+    document.getElementById(elementId).style.backgroundImage = `${highlightedUrl}, ` + currentBackgroundImage;
 }
 
-function highlightButton(x){
-	document.getElementById(x).style.backgroundImage = 'url(images/highlighted.png)';
-}
-
-function unhighlight(x) {
-    document.getElementById(x).style.backgroundImage = 'url(images/poi.png)';
-}
-
-function unhighlightSave(x){
-	document.getElementById(x).style.backgroundImage = 'url(images/save.png)';
-}
-
-function unhighlightLoad(x){
-	document.getElementById(x).style.backgroundImage = 'url(images/load.png)';
+function unhighlight(elementId) {
+    const currentBackgroundImage = document.getElementById(elementId).style.backgroundImage;
+    const backgroundImageWithoutHighlight = currentBackgroundImage.replaceAll(`${highlightedUrl}, `, ``);
+    document.getElementById(elementId).style.backgroundImage = backgroundImageWithoutHighlight;
 }
 
 function setOrder(H) {
@@ -176,16 +174,16 @@ function setOrder(H) {
     saveCookie();
 }
 
-function setZoom(target, sender) {
-    document.getElementById(target).style.zoom = sender.value / 100;
-    document.getElementById(target).style.zoom = sender.value / 100;
+// function setZoom(target, sender) {
+//     document.getElementById(target).style.zoom = sender.value / 100;
+//     document.getElementById(target).style.zoom = sender.value / 100;
 
-    document.getElementById(target).style.MozTransform = 'scale(' + (sender.value / 100) + ')';
-    document.getElementById(target).style.MozTransformOrigin = '0 0';
+//     document.getElementById(target).style.MozTransform = 'scale(' + (sender.value / 100) + ')';
+//     document.getElementById(target).style.MozTransformOrigin = '0 0';
 
-    document.getElementById(target + 'size').innerHTML = (sender.value) + '%';
-    saveCookie();
-}
+//     document.getElementById(target + 'size').innerHTML = (sender.value) + '%';
+//     saveCookie();
+// }
 
 function showSettings(sender) {
     if (editmode) {
@@ -249,9 +247,39 @@ function setMOff() {
 
 function updateMap() {
     for (k = 0; k < chests.length; k++) {
-        if (!chests[k].isCollected)
-            document.getElementById(k).className = 'mapspan chest ' + chests[k].isAvailable();
+        if (!chests[k].isCollected) {
+            const chestId = getChestId(chestIndex);
+            document.getElementById(chestId).className = 'mapspan chest ' + chests[k].isAvailable();
+        }
     }
+}
+
+function createControlButton(id, hoverText, color, image, left, top, onclick) {
+    return createButtonForMap(id, "button", hoverText, color, image, left, top, onclick)
+}
+
+function createButtonForMap(id, className, hoverText, color, image, left, top, onclick) {
+    var span = document.createElement('span');
+	span.style.backgroundImage = image;
+	span.style.color = color;
+	span.id = id;
+	span.onclick = onclick;
+	span.onmouseover = new Function(`highlight("${id}")`);
+    span.onmouseout = new Function(`unhighlight("${id}")`);
+    span.style.left = left;
+	span.style.top = top;
+	span.className = className;
+	childSpan = document.createElement('span');
+	childSpan.className = 'tooltip';
+	childSpan.innerHTML = hoverText;
+	span.appendChild(childSpan);
+    return span;
+}
+
+function getMapLocation(baseLocation, isPal, isAlt) {
+    return isPal
+        ? (100 - Number.parseFloat(baseLocation)) + "%"
+        : baseLocation;
 }
 
 function populateMapdiv() {
@@ -259,59 +287,30 @@ function populateMapdiv() {
 
     // Initialize all chests on the map
     for (k = 0; k < chests.length; k++) {
-        var s = document.createElement('span');
-        s.style.backgroundImage = 'url(images/poi.png)';
-        s.style.color = 'black';
-        s.id = k;
-        s.onclick = new Function('toggleChest(' + k + ')');
-        s.onmouseover = new Function('highlight(' + k + ')');
-        s.onmouseout = new Function('unhighlight(' + k + ')');
-        s.style.left = chests[k].x;
-        s.style.top = chests[k].y;
-        if (chests[k].isCollected) {
-            s.className = 'mapspan chest collected';
-        } else {
-            s.className = 'mapspan chest ' + chests[k].isAvailable();
-        }
-
-        var ss = document.createElement('span');
-        ss.className = 'tooltip';
-        ss.innerHTML = chests[k].name;
-        s.appendChild(ss);
-
-        mapdiv.appendChild(s);
+        const className = chests[k].isCollected
+            ? "mapspan chest collected"
+            : "mapspan chest " + chests[k].isAvailable();
+        const chestButton = createButtonForMap(getChestId(k), className, chests[k].name, "black", 'url(images/poi.png)', getMapLocation(chests[k].x), getMapLocation(chests[k].y), new Function(`toggleChest("${k}")`));
+        mapdiv.appendChild(chestButton);
     }
-	var saveSpan = document.createElement('span');
-	saveSpan.style.backgroundImage = 'url(images/save.png)';
-	saveSpan.style.color = 'black';
-	saveSpan.id = 83;
-	saveSpan.onclick = new Function('saveChests()');
-	saveSpan.onmouseover = new Function('highlightButton(83)');
-    saveSpan.onmouseout = new Function('unhighlightSave(83)');
-	saveSpan.style.left = "92.0%";
-	saveSpan.style.top = "95.0%";
-	saveSpan.className = 'button';
-	saveTooltipSpan = document.createElement('span');
-	saveTooltipSpan.className = 'tooltip';
-	saveTooltipSpan.innerHTML = 'Save';
-	saveSpan.appendChild(saveTooltipSpan);
-	mapdiv.appendChild(saveSpan);
-	
-	var loadSpan = document.createElement('span');
-	loadSpan.style.backgroundImage = 'url(images/load.png)';
-	loadSpan.style.color = 'black';
-	loadSpan.id = 84;
-	loadSpan.onclick = new Function('loadChests()');
-	loadSpan.onmouseover = new Function('highlightButton(84)');
-    loadSpan.onmouseout = new Function('unhighlightLoad(84)');
-	loadSpan.style.left = "97.0%";
-	loadSpan.style.top = "95.0%";
-	loadSpan.className = 'button';
-	loadToolTipSpan = document.createElement('span');
-	loadToolTipSpan.className = 'tooltip';
-	loadToolTipSpan.innerHTML = 'Load';
-	loadSpan.appendChild(loadToolTipSpan);
-	mapdiv.appendChild(loadSpan);
+
+    const controlButton1LocationLeft = "97.0%";
+    const controlButton2LocationLeft = "92.0%";
+    const controlButton3LocationLeft = "87.0%";
+    const controlButton4LocationLeft = "82.0%";
+    const controlButtonLocationTop = "95.0%";
+
+	const saveButton = createControlButton("save-span", "Save", "black", "url(images/save.png)", controlButton1LocationLeft, controlButtonLocationTop, new Function('saveChests()'));
+	const loadButton = createControlButton("load-span", "Load", "black", "url(images/load.png)", controlButton2LocationLeft, controlButtonLocationTop, new Function('loadChests()'));
+	const ntscButton = createControlButton("ntsc-span", "NTSC Mode", "black", "url(images/ntsc.png)", controlButton3LocationLeft, controlButtonLocationTop, new Function('toggleVersion()'));
+	const palButton = createControlButton("pal-span", "PAL Mode", "black", "url(images/pal.png)", controlButton3LocationLeft, "95.0%", new Function('toggleVersion()'));
+	const altDisplayButton = createControlButton("alt-display-span", "Alt Display", "black", "url(images/alt.png)", controlButton4LocationLeft, "95.0%", new Function('toggleAltDisplay()'));
+
+    mapdiv.appendChild(saveButton);
+    mapdiv.appendChild(loadButton);
+    mapdiv.appendChild(ntscButton);
+    mapdiv.appendChild(palButton);
+    mapdiv.appendChild(altDisplayButton);
 }
 
 function handleKeys(e){
