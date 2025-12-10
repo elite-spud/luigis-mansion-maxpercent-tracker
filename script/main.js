@@ -101,10 +101,28 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
     return span;
 }
 
-function getMapLocation(baseLocation, isPal, isAlt) {
-    return isPal
-        ? (100 - Number.parseFloat(baseLocation)) + "%"
-        : baseLocation;
+function getHorizontalMapLocation(baseLocation) {
+    console.log(currentGameVersion);
+    if (currentGameVersion === GameVersion.NTSC) {
+        return baseLocation;
+    }
+
+    const separatorPercentOffsetFromLeft = 50.7;
+    const percentOffsetFromLeft = Number.parseFloat(baseLocation);
+    const percentOffsetFromRight = 100 - percentOffsetFromLeft;
+    const mirroredPercentOffset = percentOffsetFromLeft > separatorPercentOffsetFromLeft
+        ? percentOffsetFromRight + separatorPercentOffsetFromLeft
+        : percentOffsetFromRight - (100 - separatorPercentOffsetFromLeft);
+    
+    return mirroredPercentOffset + "%"
+}
+
+function updateButtonLocations() {
+    const checkButtons = document.getElementsByClassName("check");
+    for (i = 0; i < checkButtons.length; i++) {
+        const checkIndex = checkButtons[i].id.replaceAll(`check-`, '');
+        checkButtons[i].style.left = getHorizontalMapLocation(checks[i].x);
+    }
 }
 
 function toggleAltDisplay() {
@@ -117,6 +135,7 @@ function toggleAltDisplay() {
 }
 
 function toggleNTSC() {
+    currentGameVersion = GameVersion.NTSC;
     mapDiv.classList.remove("pal");
     mapDiv.classList.add("ntsc");
 
@@ -125,10 +144,11 @@ function toggleNTSC() {
     ntscButton.className += ` invisible`;
     palButton.className = palButton.className.replaceAll(`invisible`, ``);
 
-    currentGameVersion = GameVersion.NTSC;
+    updateButtonLocations();
 }
 
 function togglePAL() {
+    currentGameVersion = GameVersion.PAL;
     mapDiv.classList.remove("ntsc");
     mapDiv.classList.add("pal");
 
@@ -137,7 +157,7 @@ function togglePAL() {
     palButton.className += ` invisible`;
     ntscButton.className = ntscButton.className.replaceAll(`invisible`, ``);
 
-    currentGameVersion = GameVersion.PAL;
+    updateButtonLocations();
 }
 
 function setVersion(version) {
@@ -158,6 +178,12 @@ function toggleVersion() {
         } else {
             toggleNTSC();
         }
+    }
+}
+
+function initializeChecks() {
+    for (let i = 0; i < checks.length; i++) {
+        checks[i].state = CheckState.Available;
     }
 }
 
@@ -186,7 +212,7 @@ function initializeMap() {
     for (k = 0; k < checks.length; k++) {
         const stateClassName = getClassNameFromState(checks[k].state);
         const className = `mapspan check ${stateClassName}`;
-        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getMapLocation(checks[k].x), getMapLocation(checks[k].y), new Function(`toggleCheck("${k}")`));
+        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getHorizontalMapLocation(checks[k].x), checks[k].y, new Function(`toggleCheck("${k}")`));
         mapDiv.appendChild(checkButton);
     }
 }
@@ -205,6 +231,7 @@ function handleKeydown(e){
 }
 
 function init() {
+    initializeChecks();
     initializeMap();
     initializeControlButtons();
     setVersion(defaultGameVersion);
