@@ -35,7 +35,7 @@ body{
     cursor: pointer;
 }
 
-.button{
+.control-button{
 	width: 32;
 	height: 32;
 	background-size: 100% 100%;
@@ -60,29 +60,6 @@ body{
 
 .saved{ 
 	background-color: rgb(0, 255, 0);
-}
-
-.mapspan .tooltipgray {
-    visibility: hidden;
-    width: 120px;
-    background-color: gray;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 120%;
-    left: 50%;
-    margin-left: -60px;
-}
-
-.mapspan .tooltipgray:hover {
-    display: none;
-}
-
-.mapspan:hover .tooltipgray {
-    visibility: visible;
 }
 
 .mapspan .tooltip {
@@ -119,30 +96,7 @@ body{
     visibility: visible
 }
 
-.button .tooltipgray {
-    visibility: hidden;
-    width: 120px;
-    background-color: gray;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 120%;
-    left: 50%;
-    margin-left: -60px;
-}
-
-.button .tooltipgray:hover {
-    display: none;
-}
-
-.button:hover .tooltipgray {
-    visibility: visible;
-}
-
-.button .tooltip {
+.control-button .tooltip {
     visibility: hidden;
     width: 120px;
     background-color: black;
@@ -157,7 +111,7 @@ body{
     margin-left: -60px;
 }
 
-.button .tooltip::after {
+.control-button .tooltip::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -168,10 +122,10 @@ body{
     border-color: black transparent transparent transparent;
 }
 
-.button .tooltip:hover {
+.control-button .tooltip:hover {
     display: none;
 }
 
-.button:hover .tooltip {
+.control-button:hover .tooltip {
     visibility: visible
 }

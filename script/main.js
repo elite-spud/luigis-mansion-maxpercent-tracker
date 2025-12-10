@@ -73,7 +73,7 @@ function unhighlight(elementId) {
 
 
 function createControlButton(id, hoverText, color, image, left, top, onclick) {
-    return createButtonForMap(id, "button", hoverText, color, image, left, top, onclick)
+    return createButtonForMap(id, "control-button", hoverText, color, image, left, top, onclick)
 }
 
 function createButtonForMap(id, className, hoverText, color, image, left, top, onclick) {
