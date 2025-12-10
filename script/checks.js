@@ -1,6 +1,5 @@
 
-//define overworld chests
-var chests = [
+var checks = [
     {
         name: "Bucket",
         x: "85.0%",

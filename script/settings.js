@@ -5,10 +5,10 @@
 	Default = 1
 */
 
-var mode = 1;
+const mode = 1;
 
 /*
-	Chest State is the initial state of money spots when loading the money tracker.
+	defaultCheckState is the initial state of money spots when loading the money tracker.
 	0 = available / gray
 	1 = collected / yellow
 	2 = possible / red
@@ -16,8 +16,8 @@ var mode = 1;
 	
 	yes, saved is 4, not 3. Not the cleanest way of doing this, but it works.
 	
-	Saving (or setting chestState to 4) will disallow changing of that money location, 
-	so don't set chestState to 4.
+	Saving (or setting defaultCheckState to 4) will disallow changing of that money location, 
+	so don't set defaultCheckState to 4.
 	
 	Possible locations don't get saved, so you can remember them later if need be.
 	
@@ -32,10 +32,10 @@ var mode = 1;
 	Default = 0
 */
 
-var chestState = 0;
+const defaultCheckState = 0;
 
 /*
-	Chest state order can be changed here. Always requires 3 elements. If using
+	checkStateOrder can be changed here. Always requires 3 elements. If using
 	mode 0, only the first two elements are used, but still requires 3 total elements.
 	Following the same numbering system as the chest state:
 	0 = available / gray
@@ -48,7 +48,7 @@ var chestState = 0;
 	Default = [0, 1, 2]
 */
 
-var order = [0, 1, 2];
+const checkStateOrder = [0, 1, 2];
 
 /*
 	The keys listed below are ascii values, if you wish to change these you can easily 
@@ -61,7 +61,7 @@ var order = [0, 1, 2];
 */
 
 //Space bar
-var saveKey = 32;
+const saveKey = 32;
 
 //Escape
-var loadKey = 27;
+const loadKey = 27;

@@ -5,113 +5,26 @@ body{
     color: white;
 }
 
-.flexcontainer {
-    display: flex;
-}
-
-.tracker{
-    background-color: rgba(0,0,0,0);
-    position: relative;
-    top: 0px;
-    margin-left: auto;
-    margin-right: auto;
-    empty-cells: show;
-    border-spacing: 0px;
-    border: 0px;
-}
-
-.tracker td{
-    width: 64px;
-    height: 64px;
-    padding: 0px;
-    background-repeat: no-repeat;
-    background-size: 64px 64px;
-}
-
-.itemconfig {
-    border-spacing: 0px;
-    border: 1px solid white;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-.stoops{
-    width: 128;
-    height: 128;
-    background-size: 200% 200%;
-}
-
-input {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display:inline-block;
-    *display: inline;     /* for IE7*/
-    zoom:1;              /* for IE7*/
-    vertical-align:middle;
-    margin-left:20px
-}
-
-label {
-    display:inline-block;
-    *display: inline;     /* for IE7*/
-    zoom:1;              /* for IE7*/
-    float: left;
-    padding-top: 5px;
-    text-align: right;
-    width: 140px;
-}
-
-.true{
-	
-}
-
-.false{
-    -webkit-filter: grayscale(50%) brightness(30%); /* Safari 6.0 - 9.0 */
-    filter: grayscale(50%) brightness(30%);
-}
-
-.itemdiv{
-    position: relative;
-    left: 0px;
-    justify-content: center;
-}
-
 .mapdiv{
     background-image: url("images/map.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 
     position: relative;
-    width: 825px;
-    height: 466px;
+    width: 100%;
+    aspect-ratio: 1.87;
     left: 0px;
 }
 
-
-.submapdiv{
-    background-color: black;
-
-    position: absolute;
-    width: 240px;
-    height: 260px;
-    margin-top: 206px;
-}
-
-
-.mapvdiv{
-    background-image: url("images/mapv.png");
-    background-size: cover;
-    background-repeat: no-repeat;
-
+.titleDiv {
+    bottom: 0;
+    width: 100%;
+    text-align: center;
     position: relative;
-    width: 438px;
-    height: 888px;
-    left: 0px;
+    color: grey;
 }
 
-.chest{
+.check{
     width: 16;
     height: 16;
     background-size: 100% 100%;
