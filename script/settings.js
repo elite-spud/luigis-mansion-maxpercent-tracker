@@ -7,7 +7,7 @@ const GameVersion = {
     NTSC: "ntsc",
     PAL: "pal"
 }
-const currentGameVersion = GameVersion.NTSC;
+const defaultGameVersion = GameVersion.NTSC;
 
 /*
     defaultCheckState is the initial state of money spots when loading the money tracker.

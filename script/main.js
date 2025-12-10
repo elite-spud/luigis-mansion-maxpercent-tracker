@@ -1,3 +1,10 @@
+const mapDiv = document.getElementById('map-div');
+const ntscButtonId = "ntsc-span";
+const palButtonId = "pal-span";
+
+let currentGameVersion = undefined;
+let enableAltDisplay = false;
+
 function getCheckId(checkIndex) {
     return `check-${checkIndex}`;
 }
@@ -100,17 +107,61 @@ function getMapLocation(baseLocation, isPal, isAlt) {
         : baseLocation;
 }
 
-function populateMapdiv() {
-    const mapdiv = document.getElementById('mapdiv');
-
-    // Initialize all checks on the map
-    for (k = 0; k < checks.length; k++) {
-        const stateClassName = getClassNameFromState(checks[k].state);
-        const className = `mapspan check ${stateClassName}`;
-        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getMapLocation(checks[k].x), getMapLocation(checks[k].y), new Function(`toggleCheck("${k}")`));
-        mapdiv.appendChild(checkButton);
+function toggleAltDisplay() {
+    if (enableAltDisplay) { // undo current alt display effects
+        mapDiv.classList.remove("alt");
+    } else {
+        mapDiv.classList.add("alt")
     }
+    enableAltDisplay = !enableAltDisplay;
+}
 
+function toggleNTSC() {
+    mapDiv.classList.remove("pal");
+    mapDiv.classList.add("ntsc");
+
+    const ntscButton = document.getElementById(ntscButtonId);
+    const palButton = document.getElementById(palButtonId);
+    ntscButton.className += ` invisible`;
+    palButton.className = palButton.className.replaceAll(`invisible`, ``);
+
+    currentGameVersion = GameVersion.NTSC;
+}
+
+function togglePAL() {
+    mapDiv.classList.remove("ntsc");
+    mapDiv.classList.add("pal");
+
+    const ntscButton = document.getElementById(ntscButtonId);
+    const palButton = document.getElementById(palButtonId);
+    palButton.className += ` invisible`;
+    ntscButton.className = ntscButton.className.replaceAll(`invisible`, ``);
+
+    currentGameVersion = GameVersion.PAL;
+}
+
+function setVersion(version) {
+    if (version === GameVersion.NTSC) {
+        toggleNTSC();
+    } else {
+        togglePAL();
+    }
+}
+
+function toggleVersion() {
+    if (!currentGameVersion) {
+        setVersion(defaultGameVersion);
+        currentGameVersion = defaultGameVersion;
+    } else {
+        if (currentGameVersion === GameVersion.NTSC) {
+            togglePAL();
+        } else {
+            toggleNTSC();
+        }
+    }
+}
+
+function initializeControlButtons() {
     const controlButton1LocationLeft = "97.0%";
     const controlButton2LocationLeft = "92.0%";
     const controlButton3LocationLeft = "87.0%";
@@ -119,15 +170,25 @@ function populateMapdiv() {
 
     const saveButton = createControlButton("save-span", "Save", "black", "url(images/save.png)", controlButton1LocationLeft, controlButtonLocationTop, new Function('saveChecks()'));
     const loadButton = createControlButton("load-span", "Load", "black", "url(images/load.png)", controlButton2LocationLeft, controlButtonLocationTop, new Function('loadChecks()'));
-    const ntscButton = createControlButton("ntsc-span", "NTSC Mode", "black", "url(images/ntsc.png)", controlButton3LocationLeft, controlButtonLocationTop, new Function('toggleVersion()'));
-    const palButton = createControlButton("pal-span", "PAL Mode", "black", "url(images/pal.png)", controlButton3LocationLeft, "95.0%", new Function('toggleVersion()'));
+    const ntscButton = createControlButton(ntscButtonId, "NTSC Mode", "black", "url(images/ntsc.png)", controlButton3LocationLeft, controlButtonLocationTop, new Function('toggleVersion()'));
+    const palButton = createControlButton(palButtonId, "PAL Mode", "black", "url(images/pal.png)", controlButton3LocationLeft, "95.0%", new Function('toggleVersion()'));
     const altDisplayButton = createControlButton("alt-display-span", "Alt Display", "black", "url(images/alt.png)", controlButton4LocationLeft, "95.0%", new Function('toggleAltDisplay()'));
 
-    mapdiv.appendChild(saveButton);
-    mapdiv.appendChild(loadButton);
-    mapdiv.appendChild(ntscButton);
-    mapdiv.appendChild(palButton);
-    mapdiv.appendChild(altDisplayButton);
+    mapDiv.appendChild(saveButton);
+    mapDiv.appendChild(loadButton);
+    mapDiv.appendChild(ntscButton);
+    mapDiv.appendChild(palButton);
+    mapDiv.appendChild(altDisplayButton);
+}
+
+function initializeMap() {
+    // Initialize all checks on the map
+    for (k = 0; k < checks.length; k++) {
+        const stateClassName = getClassNameFromState(checks[k].state);
+        const className = `mapspan check ${stateClassName}`;
+        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getMapLocation(checks[k].x), getMapLocation(checks[k].y), new Function(`toggleCheck("${k}")`));
+        mapDiv.appendChild(checkButton);
+    }
 }
 
 function handleKeydown(e){
@@ -144,6 +205,8 @@ function handleKeydown(e){
 }
 
 function init() {
-    populateMapdiv();
+    initializeMap();
+    initializeControlButtons();
+    setVersion(defaultGameVersion);
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
 }

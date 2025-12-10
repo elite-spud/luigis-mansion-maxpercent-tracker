@@ -5,8 +5,7 @@ body{
     color: white;
 }
 
-.mapdiv{
-    background-image: url("images/map.png");
+.map {
     background-size: 100% 100%;
     background-repeat: no-repeat;
 
@@ -14,6 +13,26 @@ body{
     width: 100%;
     aspect-ratio: 1.87;
     left: 0px;
+}
+
+.map.ntsc {
+    background-image: url("images/map-ntsc.png");
+}
+
+.map.ntsc.alt{
+    background-image: url("images/map-ntsc-alt.png");
+}
+
+.map.pal{
+    background-image: url("images/map-pal.png");
+}
+
+.map.pal.alt {
+    background-image: url("images/map-pal-alt.png");
+}
+
+.invisible {
+    visibility: hidden;
 }
 
 .titleDiv {
