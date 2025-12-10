@@ -37,12 +37,12 @@ const defaultCheckState = 0;
 /*
 	checkStateOrder can be changed here. Always requires 3 elements. If using
 	mode 0, only the first two elements are used, but still requires 3 total elements.
-	Following the same numbering system as the chest state:
+	Following the same numbering system as the check state:
 	0 = available / gray
 	1 = collected / yellow
 	2 = possible / red
 	
-	The same as chestState, don't set 4 anywhere in the order to avoid locking a chest
+	The same as checkState, don't set 4 anywhere in the order to avoid locking a check
 	in a saved state.
 	
 	Default = [0, 1, 2]
