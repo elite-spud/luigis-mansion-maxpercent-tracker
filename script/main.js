@@ -4,7 +4,7 @@ function serializeChecks() {
 }
 
 function deserializeChecks(serializedChecks) {
-    for (var i = 0; i < checks.length; i++) {
+    for (let i = 0; i < checks.length; i++) {
 		    checks[i].state = defaultCheckState;
         checks[i].isCollected = true;
         refreshCheck(i);
@@ -21,7 +21,7 @@ function toggleCheck(checkIndex) {
 	if (checks[checkIndex].state != 4 && checks[checkIndex].state != 3){
 		checks[checkIndex].state += 1;
 	}
-	var maxStates = 0;
+	let maxStates = 0;
 	if (mode == 0)
 		maxStates = 1;
 	if (mode == 1)
@@ -34,7 +34,7 @@ function toggleCheck(checkIndex) {
 }
 
 function saveChecks(){
-	for (var i = 0; i < checks.length; i++){
+	for (let i = 0; i < checks.length; i++){
 		if (checks[i].state == 1){
 			checks[i].state = 4; // TODO: make state 4 toggleable
 		}
@@ -43,7 +43,7 @@ function saveChecks(){
 }
 
 function loadChecks(){
-	for (var i = 0; i < checks.length; i++){
+	for (let i = 0; i < checks.length; i++){
 		if (checks[i].state == 1){
 			checks[i].state = 0;
 		}
@@ -52,7 +52,7 @@ function loadChecks(){
 }
 
 function refreshCheck(checkIndex) {
-    var stateClass = checks[checkIndex].isAvailable() ? 'available' : checks[checkIndex].isAvailable();
+    let stateClass = checks[checkIndex].isAvailable() ? 'available' : checks[checkIndex].isAvailable();
 	switch (checks[checkIndex].state)
 	{
 		case checkStateOrder[0]:
@@ -91,7 +91,7 @@ function createControlButton(id, hoverText, color, image, left, top, onclick) {
 }
 
 function createButtonForMap(id, className, hoverText, color, image, left, top, onclick) {
-    var span = document.createElement('span');
+    const span = document.createElement('span');
 	span.style.backgroundImage = image;
 	span.style.color = color;
 	span.id = id;
@@ -115,7 +115,7 @@ function getMapLocation(baseLocation, isPal, isAlt) {
 }
 
 function populateMapdiv() {
-    var mapdiv = document.getElementById('mapdiv');
+    const mapdiv = document.getElementById('mapdiv');
 
     // Initialize all checks on the map
     for (k = 0; k < checks.length; k++) {
@@ -145,16 +145,16 @@ function populateMapdiv() {
     mapdiv.appendChild(altDisplayButton);
 }
 
-function handleKeys(e){
-	var mapdiv = document.getElementById('mapdiv');
-	var key = e.keyCode;
+function handleKeydown(e){
+    console.log(e)
+	const key = e.keyCode;
 	switch (key)
 	{
 		case loadKey:
-			loadChests();
+			loadChecks();
 			break;
 		case saveKey:
-			saveChests();
+			saveChecks();
 			break;
 	}
 }
@@ -162,5 +162,5 @@ function handleKeys(e){
 function init() {
     populateMapdiv();
     deserializeChecks();
-    document.addEventListener('keydown', this.handleKeys, false);
+    document.addEventListener('keydown', (e) => this.handleKeydown(e));
 }
