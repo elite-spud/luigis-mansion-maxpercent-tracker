@@ -145,6 +145,5 @@ function handleKeydown(e){
 
 function init() {
     populateMapdiv();
-    loadChecks();
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
 }
