@@ -101,26 +101,50 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
     return span;
 }
 
-function getHorizontalMapLocation(baseLocation) {
-    if (currentGameVersion === GameVersion.NTSC) {
-        return baseLocation;
+function getHorizontalOffset(baseLocation) {
+    const basePercentOffsetFromLeft = Number.parseFloat(baseLocation);
+    const separatorBasePercentOffsetFromLeft = 50.7; // Constant determined by the image used for the map background
+
+    let offset = basePercentOffsetFromLeft
+    let separatorOffset = separatorBasePercentOffsetFromLeft;
+    if (enableAltDisplay) {
+        offset = getAltDisplayOffset(basePercentOffsetFromLeft, separatorBasePercentOffsetFromLeft)
+        separatorOffset = 100 - separatorBasePercentOffsetFromLeft;
     }
 
-    const separatorPercentOffsetFromLeft = 50.7;
-    const percentOffsetFromLeft = Number.parseFloat(baseLocation);
-    const percentOffsetFromRight = 100 - percentOffsetFromLeft;
-    const mirroredPercentOffset = percentOffsetFromLeft > separatorPercentOffsetFromLeft
-        ? percentOffsetFromRight + separatorPercentOffsetFromLeft
-        : percentOffsetFromRight - (100 - separatorPercentOffsetFromLeft);
+    if (currentGameVersion === GameVersion.PAL) {
+        offset = getPalMirrorOffset(offset, separatorOffset);
+    }
     
-    return mirroredPercentOffset + "%"
+    return offset + "%";
+}
+
+function getAltDisplayOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
+    const isRightOfSeparator = percentOffsetFromLeft > separatorPercentOffsetFromLeft;
+    const altOffset = isRightOfSeparator
+        ? percentOffsetFromLeft - separatorPercentOffsetFromLeft
+        : percentOffsetFromLeft + (100 - separatorPercentOffsetFromLeft);
+    return altOffset;
+}
+
+function getPalMirrorOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
+    const isLeftOfSeparator = percentOffsetFromLeft < separatorPercentOffsetFromLeft;
+    const leftExtent = isLeftOfSeparator
+        ? 0
+        : separatorPercentOffsetFromLeft;
+    const rightExtent = isLeftOfSeparator
+        ? separatorPercentOffsetFromLeft
+        : 100; // TODO: make this 0...1 range
+
+    const mirroredPercentOffset = leftExtent + (rightExtent - percentOffsetFromLeft)
+    return mirroredPercentOffset;
 }
 
 function updateButtonLocations() {
     const checkButtons = document.getElementsByClassName("check");
     for (i = 0; i < checkButtons.length; i++) {
         const checkIndex = checkButtons[i].id.replaceAll(`check-`, '');
-        checkButtons[i].style.left = getHorizontalMapLocation(checks[i].x);
+        checkButtons[i].style.left = getHorizontalOffset(checks[checkIndex].x);
     }
 }
 
@@ -131,6 +155,8 @@ function toggleAltDisplay() {
         mapDiv.classList.add("alt")
     }
     enableAltDisplay = !enableAltDisplay;
+
+    updateButtonLocations();
 }
 
 function toggleNTSC() {
@@ -211,7 +237,7 @@ function initializeMap() {
     for (k = 0; k < checks.length; k++) {
         const stateClassName = getClassNameFromState(checks[k].state);
         const className = `mapspan check ${stateClassName}`;
-        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getHorizontalMapLocation(checks[k].x), checks[k].y, new Function(`toggleCheck("${k}")`));
+        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getHorizontalOffset(checks[k].x), checks[k].y, new Function(`toggleCheck("${k}")`));
         mapDiv.appendChild(checkButton);
     }
 }
