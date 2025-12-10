@@ -1,42 +1,29 @@
-
-function serializeChecks() {
-    return checks.map(check => check.isCollected || true);
-}
-
-function deserializeChecks(serializedChecks) {
-    for (let i = 0; i < checks.length; i++) {
-		    checks[i].state = defaultCheckState;
-        checks[i].isCollected = true;
-        refreshCheck(i);
-    }
-}
-
 function getCheckId(checkIndex) {
     return `check-${checkIndex}`;
 }
 
 // Event of clicking a check on the map
 function toggleCheck(checkIndex) {
-    // TODO: allow retoggling of green spots
-	if (checks[checkIndex].state != 4 && checks[checkIndex].state != 3){
-		checks[checkIndex].state += 1;
+	// Do not allow toggling checks with saved states beyond the maxToggleableState
+    // TODO: allow retoggling of saved checks with a new control button
+	if (checks[checkIndex].state > maxToggleableState) {
+		return;
 	}
-	let maxStates = 0;
-	if (mode == 0)
-		maxStates = 1;
-	if (mode == 1)
-		maxStates = 2;
-	if(checks[checkIndex].state != 4)
-		if (checks[checkIndex].state > maxStates)
-			checks[checkIndex].state = 0;
-	
-    refreshCheck(checkIndex);
+
+	// State is at last option in order
+	if (checks[checkIndex].state === maxToggleableState) {
+		checks[checkIndex].state = minToggleableState;
+	} else {
+		checks[checkIndex].state++;
+	}
+
+	refreshCheck(checkIndex);
 }
 
 function saveChecks(){
 	for (let i = 0; i < checks.length; i++){
-		if (checks[i].state == 1){
-			checks[i].state = 4; // TODO: make state 4 toggleable
+		if (checks[i].state === CheckState.Collected){
+			checks[i].state = CheckState.Saved;
 		}
 		refreshCheck(i);
 	}
@@ -45,35 +32,34 @@ function saveChecks(){
 function loadChecks(){
 	for (let i = 0; i < checks.length; i++){
 		if (checks[i].state == 1){
-			checks[i].state = 0;
+			checks[i].state = defaultCheckState;
 		}
 		refreshCheck(i);
 	}
 }
 
-function refreshCheck(checkIndex) {
-    let stateClass = checks[checkIndex].isAvailable() ? 'available' : checks[checkIndex].isAvailable();
-	switch (checks[checkIndex].state)
-	{
-		case checkStateOrder[0]:
-			stateClass = 'available';
-			break;
-		case checkStateOrder[1]:
-			stateClass = 'collected';
-			break;
-		case checkStateOrder[2]:
-			stateClass = 'possible';
-			break;
-		case 4:
-			stateClass = 'saved';
-			break;
+function getClassNameFromState(checkState) {
+	switch (checkState) {
+		case CheckState.Available:
+			return 'available';
+		case CheckState.Collected:
+			return 'collected';
+		case CheckState.Possible:
+			return 'possible';
+		case CheckState.Saved:
+			return 'saved';
 	}
+
+	throw new Error(`checkState: ${checkState} not recognized as valid checkState`);
+}
+
+function refreshCheck(checkIndex) {
+    const stateClass = getClassNameFromState(checks[checkIndex].state);
     const checkId = getCheckId(checkIndex);
     document.getElementById(checkId).className = 'mapspan check ' + stateClass;
 }
 
 const highlightedUrl = `url("images/highlighted.png")`;
-// Highlights a check location
 function highlight(elementId) {
     const currentBackgroundImage = document.getElementById(elementId).style.backgroundImage;
     document.getElementById(elementId).style.backgroundImage = `${highlightedUrl}, ` + currentBackgroundImage;
@@ -119,9 +105,8 @@ function populateMapdiv() {
 
     // Initialize all checks on the map
     for (k = 0; k < checks.length; k++) {
-        const className = checks[k].isCollected
-            ? "mapspan check collected"
-            : "mapspan check " + checks[k].isAvailable();
+		const stateClassName = getClassNameFromState(checks[k].state);
+		const className = `mapspan check ${stateClassName}`;
         const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getMapLocation(checks[k].x), getMapLocation(checks[k].y), new Function(`toggleCheck("${k}")`));
         mapdiv.appendChild(checkButton);
     }
@@ -146,14 +131,13 @@ function populateMapdiv() {
 }
 
 function handleKeydown(e){
-    console.log(e)
 	const key = e.keyCode;
 	switch (key)
 	{
-		case loadKey:
+		case KeyCodes.LoadKey:
 			loadChecks();
 			break;
-		case saveKey:
+		case KeyCodes.SaveKey:
 			saveChecks();
 			break;
 	}
@@ -161,6 +145,6 @@ function handleKeydown(e){
 
 function init() {
     populateMapdiv();
-    deserializeChecks();
+    loadChecks();
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
 }

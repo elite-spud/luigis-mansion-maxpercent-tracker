@@ -1,23 +1,23 @@
 /*
-	mode 0 flips between available, and collected.
-	mode 1 flips between available, collected, and possibly collected.
-
-	Default = 1
+	gameVersion tracks what version of the game is being tracked (NTSC vs. PAL).
+	This is helpful because the PAL hidden mansion is mirrored compared to the NTSC version.
 */
 
-const mode = 1;
+const GameVersion = {
+	NTSC: "ntsc",
+	PAL: "pal"
+}
+const currentGameVersion = GameVersion.NTSC;
 
 /*
 	defaultCheckState is the initial state of money spots when loading the money tracker.
 	0 = available / gray
 	1 = collected / yellow
 	2 = possible / red
-	4 = saved / green 
+	3 = saved / green 
 	
-	yes, saved is 4, not 3. Not the cleanest way of doing this, but it works.
-	
-	Saving (or setting defaultCheckState to 4) will disallow changing of that money location, 
-	so don't set defaultCheckState to 4.
+	Saving (or setting defaultCheckState to 3) will disallow changing of that money location, 
+	so don't set defaultCheckState to 3.
 	
 	Possible locations don't get saved, so you can remember them later if need be.
 	
@@ -28,40 +28,32 @@ const mode = 1;
 	.collected
 	.possible
 	.saved
-
-	Default = 0
 */
 
-const defaultCheckState = 0;
+const CheckState = {
+	Available: 0,
+	Collected: 1,
+	Possible: 2,
+	Saved: 3,
+}
+const defaultCheckState = CheckState.Available;
 
 /*
-	checkStateOrder can be changed here. Always requires 3 elements. If using
-	mode 0, only the first two elements are used, but still requires 3 total elements.
-	Following the same numbering system as the check state:
-	0 = available / gray
-	1 = collected / yellow
-	2 = possible / red
-	
-	The same as checkState, don't set 4 anywhere in the order to avoid locking a check
-	in a saved state.
-	
-	Default = [0, 1, 2]
+	maxToggleableState limits how high the checkState can be set via toggling.
+	Values higher than this must be set in other ways (e.g. via saving).
+	Saved states above this value cannot be changed via toggling.
 */
 
-const checkStateOrder = [0, 1, 2];
+const maxToggleableState = 2;
+const minToggleableState = 0;
 
 /*
 	The keys listed below are ascii values, if you wish to change these you can easily 
 	find codes for whatever keys you'd like here: (use the event.which number) 
 	https://www.toptal.com/developers/keycode 
-	
-	
-	Default saveKey = 32
-	Default loadKey = 27
 */
 
-//Space bar
-const saveKey = 32;
-
-//Escape
-const loadKey = 27;
+const KeyCodes = {
+	SaveKey: 32, // spacebar
+	LoadKey: 27 // escape
+}
