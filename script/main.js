@@ -1,13 +1,20 @@
 const mapDiv = document.getElementById('map-div');
 const checksDiv = document.getElementById('checks-div');
 const controlsDiv = document.getElementById('controls-div');
-const ntscButtonId = "ntsc-span";
-const palButtonId = "pal-span";
+
+const versionButtonId = "version-span";
+const ntscImageUrl = "url(images/ntsc.png)"
+const palImageUrl = "url(images/pal.png)";
+
+const lockButtonId = "lock-saved-checks-span";
+const lockImageUrl = "url(images/lock.png)"
+const unlockImageUrl = "url(images/unlock.png)";
 
 const separatorBasePercentOffsetFromLeft = 50.7; // Constant determined by the image used for the map background
 
 let currentGameVersion = undefined;
-let enableAltDisplay = false;
+let shouldFlipPanels = false;
+let lockSavedChecks = undefined;
 
 function getCheckId(checkIndex) {
     return `check-${checkIndex}`;
@@ -15,17 +22,19 @@ function getCheckId(checkIndex) {
 
 // Event of clicking a check on the map
 function toggleCheck(checkIndex) {
-    // Do not allow toggling checks with saved states beyond the maxToggleableState
-    // TODO: allow retoggling of saved checks with a new control button
     if (checks[checkIndex].state > maxToggleableState) {
-        return;
-    }
-
-    // State is at last option in order
-    if (checks[checkIndex].state === maxToggleableState) {
-        checks[checkIndex].state = minToggleableState;
+        if (lockSavedChecks) {
+            return;
+        } else {
+            checks[checkIndex].state = minToggleableState;
+        }
     } else {
-        checks[checkIndex].state++;
+        // State is at last option in order
+        if (checks[checkIndex].state === maxToggleableState) {
+            checks[checkIndex].state = minToggleableState;
+        } else {
+            checks[checkIndex].state++;
+        }
     }
 
     refreshCheck(checkIndex);
@@ -110,8 +119,8 @@ function getHorizontalOffset(baseLocation) {
 
     let offset = basePercentOffsetFromLeft
     let separatorOffset = separatorBasePercentOffsetFromLeft;
-    if (enableAltDisplay) {
-        offset = getAltDisplayOffset(basePercentOffsetFromLeft, separatorBasePercentOffsetFromLeft)
+    if (shouldFlipPanels) {
+        offset = getPanelFlipOffset(basePercentOffsetFromLeft, separatorBasePercentOffsetFromLeft)
         separatorOffset = 100 - separatorBasePercentOffsetFromLeft;
     }
 
@@ -122,12 +131,12 @@ function getHorizontalOffset(baseLocation) {
     return offset + "%";
 }
 
-function getAltDisplayOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
+function getPanelFlipOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
     const isRightOfSeparator = percentOffsetFromLeft > separatorPercentOffsetFromLeft;
-    const altOffset = isRightOfSeparator
+    const panelFlipOffset = isRightOfSeparator
         ? percentOffsetFromLeft - separatorPercentOffsetFromLeft
         : percentOffsetFromLeft + (100 - separatorPercentOffsetFromLeft);
-    return altOffset;
+    return panelFlipOffset;
 }
 
 function getPalMirrorOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
@@ -151,48 +160,46 @@ function updateButtonLocations() {
     }
 }
 
-function toggleAltDisplay() {
-    if (enableAltDisplay) { // undo current alt display effects
-        mapDiv.classList.remove("alt");
+function toggleFlipPanels() {
+    if (shouldFlipPanels) { // undo current panel flip effects
+        mapDiv.classList.remove("flip");
     } else {
-        mapDiv.classList.add("alt")
+        mapDiv.classList.add("flip")
     }
-    enableAltDisplay = !enableAltDisplay;
+    shouldFlipPanels = !shouldFlipPanels;
 
     updateButtonLocations();
 }
 
-function toggleNTSC() {
+function setNTSC() {
     currentGameVersion = GameVersion.NTSC;
     mapDiv.classList.remove("pal");
     mapDiv.classList.add("ntsc");
 
-    const ntscButton = document.getElementById(ntscButtonId);
-    const palButton = document.getElementById(palButtonId);
-    ntscButton.className += ` invisible`;
-    palButton.className = palButton.className.replaceAll(`invisible`, ``);
+    const versionButton = document.getElementById(versionButtonId);
+    versionButton.classList.remove(`pal`);
+    versionButton.classList.add(`ntsc`);
 
     updateButtonLocations();
 }
 
-function togglePAL() {
+function setPAL() {
     currentGameVersion = GameVersion.PAL;
     mapDiv.classList.remove("ntsc");
     mapDiv.classList.add("pal");
 
-    const ntscButton = document.getElementById(ntscButtonId);
-    const palButton = document.getElementById(palButtonId);
-    palButton.className += ` invisible`;
-    ntscButton.className = ntscButton.className.replaceAll(`invisible`, ``);
+    const versionButton = document.getElementById(versionButtonId);
+    versionButton.classList.remove(`ntsc`);
+    versionButton.classList.add(`pal`);
 
     updateButtonLocations();
 }
 
 function setVersion(version) {
     if (version === GameVersion.NTSC) {
-        toggleNTSC();
+        setNTSC();
     } else {
-        togglePAL();
+        setPAL();
     }
 }
 
@@ -202,10 +209,31 @@ function toggleVersion() {
         currentGameVersion = defaultGameVersion;
     } else {
         if (currentGameVersion === GameVersion.NTSC) {
-            togglePAL();
+            setPAL();
         } else {
-            toggleNTSC();
+            setNTSC();
         }
+    }
+}
+
+function setLockSavedChecks(shouldLock) {
+    const lockButton = document.getElementById(lockButtonId);
+    if (shouldLock) {
+        lockSavedChecks = true;
+        lockButton.classList.remove(`unlocked`);
+        lockButton.classList.add(`locked`);
+    } else {
+        lockSavedChecks = false;
+        lockButton.classList.remove(`locked`);
+        lockButton.classList.add(`unlocked`);
+    }
+}
+
+function toggleLockSavedChecks() {
+    if (lockSavedChecks) {
+        setLockSavedChecks(false);
+    } else {
+        setLockSavedChecks(true);
     }
 }
 
@@ -218,20 +246,15 @@ function initializeChecks() {
 function initializeControlButtons() {
     const saveButton = createControlButton("save-span", "save", "Save", "black", "url(images/save.png)", new Function('saveChecks()'));
     const loadButton = createControlButton("load-span", "load", "Load", "black", "url(images/load.png)", new Function('loadChecks()'));
-
-    /** Buttons change the mode, but the displayed image should match the current mode */
-    const ntscImageUrl = "url(images/ntsc.png)"
-    const palImageUrl = "url(images/pal.png)";
-    const ntscButton = createControlButton(ntscButtonId, "version", "Game Version", "black", palImageUrl, new Function('toggleVersion()'));
-    const palButton = createControlButton(palButtonId, "version", "Game Version", "black", ntscImageUrl, new Function('toggleVersion()'));
-
-    const altDisplayButton = createControlButton("alt-display-span", "altDisplay", "Flip Panels", "black", "url(images/alt.png)", new Function('toggleAltDisplay()'));
+    const versionButton = createControlButton(versionButtonId, "version", "Game Version", "black", undefined, new Function('toggleVersion()'));
+    const flipPanelsButton = createControlButton("flip-panels-span", "flipPanels", "Flip Panels", "black", "url(images/flip.png)", new Function('toggleFlipPanels()'));
+    const lockSavedChecksButton = createControlButton(lockButtonId, "lockSaved", "Lock Saved Checks", "black", undefined, new Function('toggleLockSavedChecks()'));
 
     controlsDiv.appendChild(saveButton);
     controlsDiv.appendChild(loadButton);
-    controlsDiv.appendChild(ntscButton);
-    controlsDiv.appendChild(palButton);
-    controlsDiv.appendChild(altDisplayButton);
+    controlsDiv.appendChild(versionButton);
+    controlsDiv.appendChild(flipPanelsButton);
+    controlsDiv.appendChild(lockSavedChecksButton);
 }
 
 // Initialize all checks on the map
@@ -262,5 +285,6 @@ function init() {
     initializeMap();
     initializeControlButtons();
     setVersion(defaultGameVersion);
+    setLockSavedChecks(true);
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
 }

@@ -19,16 +19,16 @@ body {
     background-image: url("images/map-ntsc.png");
 }
 
-.map.ntsc.alt{
-    background-image: url("images/map-ntsc-alt.png");
+.map.ntsc.flip{
+    background-image: url("images/map-ntsc-flip.png");
 }
 
 .map.pal{
     background-image: url("images/map-pal.png");
 }
 
-.map.pal.alt {
-    background-image: url("images/map-pal-alt.png");
+.map.pal.flip {
+    background-image: url("images/map-pal-flip.png");
 }
 
 .invisible {
@@ -80,8 +80,28 @@ body {
     left: 20px;
 }
 
-.control-button.altDisplay {
+.control-button.version.ntsc {
+    background-image: url("images/ntsc.png");
+}
+
+.control-button.version.pal {
+    background-image: url("images/pal.png");
+}
+
+.control-button.flipPanels {
     left: 60px;
+}
+
+.control-button.lockSaved {
+    left: 100px;
+}
+
+.control-button.lockSaved.locked {
+    background-image: url("images/lock.png");
+}
+
+.control-button.lockSaved.unlocked {
+    background-image: url("images/unlock.png");
 }
 
 .check{
