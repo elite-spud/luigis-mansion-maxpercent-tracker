@@ -225,7 +225,7 @@ function initializeControlButtons() {
     const ntscButton = createControlButton(ntscButtonId, "version", "Game Version", "black", palImageUrl, new Function('toggleVersion()'));
     const palButton = createControlButton(palButtonId, "version", "Game Version", "black", ntscImageUrl, new Function('toggleVersion()'));
 
-    const altDisplayButton = createControlButton("alt-display-span", "altDisplay", "Alt Display", "black", "url(images/alt.png)", new Function('toggleAltDisplay()'));
+    const altDisplayButton = createControlButton("alt-display-span", "altDisplay", "Flip Panels", "black", "url(images/alt.png)", new Function('toggleAltDisplay()'));
 
     controlsDiv.appendChild(saveButton);
     controlsDiv.appendChild(loadButton);
