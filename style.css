@@ -1,18 +1,17 @@
 
-body{
+body {
     background-color: rgb(0,0,0);
     margin: 0px;
     color: white;
 }
 
 .map {
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-
     position: relative;
-    width: 100%;
-    aspect-ratio: 1.87;
-    left: 0px;
+    background-size: 100% 100%;
+    /* Constant determined by the aspect ratio of the map images */
+    aspect-ratio: 3176 / 1696;
+    max-height: 100%;
+    max-width: 100%;
 }
 
 .map.ntsc {
@@ -35,30 +34,56 @@ body{
     visibility: hidden;
 }
 
-.titleDiv {
-    bottom: 0;
-    width: 100%;
+.bottom-container {
+    display: grid;
+    grid-template-areas:
+        "instructions controls";
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+    grid-auto-columns: auto;
+}
+
+.instructions {
+    grid-area: instructions;
     text-align: center;
-    position: relative;
+    align-content: center;
     color: grey;
+}
+
+.controls {
+    grid-area: controls;
+    position: relative;
+}
+
+.control-button {
+    width: 32;
+    height: 32;
+    background-size: 100% 100%;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    cursor: pointer;
+}
+
+.control-button.save {
+    right: 60px;
+}
+
+.control-button.load {
+    right: 20px;
+}
+
+.control-button.version {
+    left: 20px;
+}
+
+.control-button.altDisplay {
+    left: 60px;
 }
 
 .check{
     width: 16;
     height: 16;
     background-size: 100% 100%;
-
-    position: absolute;
-    margin-left: -8px;
-    margin-top: -8px;
-    cursor: pointer;
-}
-
-.control-button{
-    width: 32;
-    height: 32;
-    background-size: 100% 100%;
-    background-color: rgb(255, 255, 255);
     position: absolute;
     margin-left: -8px;
     margin-top: -8px;

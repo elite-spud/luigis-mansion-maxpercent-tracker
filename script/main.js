@@ -1,6 +1,10 @@
 const mapDiv = document.getElementById('map-div');
+const checksDiv = document.getElementById('checks-div');
+const controlsDiv = document.getElementById('controls-div');
 const ntscButtonId = "ntsc-span";
 const palButtonId = "pal-span";
+
+const separatorBasePercentOffsetFromLeft = 50.7; // Constant determined by the image used for the map background
 
 let currentGameVersion = undefined;
 let enableAltDisplay = false;
@@ -79,8 +83,8 @@ function unhighlight(elementId) {
 }
 
 
-function createControlButton(id, hoverText, color, image, left, top, onclick) {
-    return createButtonForMap(id, "control-button", hoverText, color, image, left, top, onclick)
+function createControlButton(id, subClassName, hoverText, color, image, onclick) {
+    return createButtonForMap(id, `control-button ${subClassName}`, hoverText, color, image, undefined, undefined, onclick);
 }
 
 function createButtonForMap(id, className, hoverText, color, image, left, top, onclick) {
@@ -103,7 +107,6 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
 
 function getHorizontalOffset(baseLocation) {
     const basePercentOffsetFromLeft = Number.parseFloat(baseLocation);
-    const separatorBasePercentOffsetFromLeft = 50.7; // Constant determined by the image used for the map background
 
     let offset = basePercentOffsetFromLeft
     let separatorOffset = separatorBasePercentOffsetFromLeft;
@@ -213,32 +216,31 @@ function initializeChecks() {
 }
 
 function initializeControlButtons() {
-    const controlButton1LocationLeft = "97.0%";
-    const controlButton2LocationLeft = "92.0%";
-    const controlButton3LocationLeft = "87.0%";
-    const controlButton4LocationLeft = "82.0%";
-    const controlButtonLocationTop = "95.0%";
+    const saveButton = createControlButton("save-span", "save", "Save", "black", "url(images/save.png)", new Function('saveChecks()'));
+    const loadButton = createControlButton("load-span", "load", "Load", "black", "url(images/load.png)", new Function('loadChecks()'));
 
-    const saveButton = createControlButton("save-span", "Save", "black", "url(images/save.png)", controlButton1LocationLeft, controlButtonLocationTop, new Function('saveChecks()'));
-    const loadButton = createControlButton("load-span", "Load", "black", "url(images/load.png)", controlButton2LocationLeft, controlButtonLocationTop, new Function('loadChecks()'));
-    const ntscButton = createControlButton(ntscButtonId, "NTSC Mode", "black", "url(images/ntsc.png)", controlButton3LocationLeft, controlButtonLocationTop, new Function('toggleVersion()'));
-    const palButton = createControlButton(palButtonId, "PAL Mode", "black", "url(images/pal.png)", controlButton3LocationLeft, "95.0%", new Function('toggleVersion()'));
-    const altDisplayButton = createControlButton("alt-display-span", "Alt Display", "black", "url(images/alt.png)", controlButton4LocationLeft, "95.0%", new Function('toggleAltDisplay()'));
+    /** Buttons change the mode, but the displayed image should match the current mode */
+    const ntscImageUrl = "url(images/ntsc.png)"
+    const palImageUrl = "url(images/pal.png)";
+    const ntscButton = createControlButton(ntscButtonId, "version", "Game Version", "black", palImageUrl, new Function('toggleVersion()'));
+    const palButton = createControlButton(palButtonId, "version", "Game Version", "black", ntscImageUrl, new Function('toggleVersion()'));
 
-    mapDiv.appendChild(saveButton);
-    mapDiv.appendChild(loadButton);
-    mapDiv.appendChild(ntscButton);
-    mapDiv.appendChild(palButton);
-    mapDiv.appendChild(altDisplayButton);
+    const altDisplayButton = createControlButton("alt-display-span", "altDisplay", "Alt Display", "black", "url(images/alt.png)", new Function('toggleAltDisplay()'));
+
+    controlsDiv.appendChild(saveButton);
+    controlsDiv.appendChild(loadButton);
+    controlsDiv.appendChild(ntscButton);
+    controlsDiv.appendChild(palButton);
+    controlsDiv.appendChild(altDisplayButton);
 }
 
+// Initialize all checks on the map
 function initializeMap() {
-    // Initialize all checks on the map
     for (k = 0; k < checks.length; k++) {
         const stateClassName = getClassNameFromState(checks[k].state);
         const className = `mapspan check ${stateClassName}`;
         const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getHorizontalOffset(checks[k].x), checks[k].y, new Function(`toggleCheck("${k}")`));
-        mapDiv.appendChild(checkButton);
+        checksDiv.appendChild(checkButton);
     }
 }
 
