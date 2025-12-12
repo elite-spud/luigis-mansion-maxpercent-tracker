@@ -67,10 +67,20 @@ body {
 
 .control-button.save {
     right: 7rem;
+    background-image: url("images/save.png");
+}
+
+.control-button.save.highlight {
+    background-image: url("images/highlighted.png"), url("images/save.png");
 }
 
 .control-button.load {
     right: 2rem;
+    background-image: url("images/load.png");
+}
+
+.control-button.load.highlight {
+    background-image: url("images/highlighted.png"), url("images/load.png");
 }
 
 .control-button.version {
@@ -81,12 +91,25 @@ body {
     background-image: url("images/ntsc.png");
 }
 
+.control-button.version.ntsc.highlight {
+    background-image: url("images/highlighted.png"), url("images/ntsc.png");
+}
+
 .control-button.version.pal {
     background-image: url("images/pal.png");
 }
 
+.control-button.version.pal.highlight {
+    background-image: url("images/highlighted.png"), url("images/pal.png");
+}
+
 .control-button.flipPanels {
     left: 7rem;
+    background-image: url("images/flip.png");
+}
+
+.control-button.flipPanels.highlight {
+    background-image: url("images/highlighted.png"), url("images/flip.png");
 }
 
 .control-button.lockSaved {
@@ -97,18 +120,31 @@ body {
     background-image: url("images/lock.png");
 }
 
+.control-button.lockSaved.locked.highlight {
+    background-image: url("images/highlighted.png"), url("images/lock.png");
+}
+
 .control-button.lockSaved.unlocked {
     background-image: url("images/unlock.png");
 }
 
-.check{
+.control-button.lockSaved.unlocked.highlight {
+    background-image: url("images/highlighted.png"), url("images/unlock.png");
+}
+
+.check {
     width: 1.8rem;
     height: 1.8rem;
     background-size: 100% 100%;
+    background-image: url("images/outline.png");
     position: absolute;
     /* center element on position instead of using top-left corner */
     transform: translate(-50%, -50%);
     cursor: pointer;
+}
+
+.check.highlight {
+    background-image: url("images/highlighted.png"), url("images/outline.png");
 }
 
 .available{

@@ -3,12 +3,8 @@ const checksDiv = document.getElementById('checks-div');
 const controlsDiv = document.getElementById('controls-div');
 
 const versionButtonId = "version-span";
-const ntscImageUrl = "url(images/ntsc.png)"
-const palImageUrl = "url(images/pal.png)";
 
 const lockButtonId = "lock-saved-checks-span";
-const lockImageUrl = "url(images/lock.png)"
-const unlockImageUrl = "url(images/unlock.png)";
 
 const separatorBasePercentOffsetFromLeft = 0.507; // Constant determined by the image used for the map background
 
@@ -79,26 +75,23 @@ function refreshCheck(checkIndex) {
     document.getElementById(checkId).className = 'check ' + stateClass;
 }
 
-const highlightedUrl = `url("images/highlighted.png")`;
 function highlight(elementId) {
-    const currentBackgroundImage = document.getElementById(elementId).style.backgroundImage;
-    document.getElementById(elementId).style.backgroundImage = `${highlightedUrl}, ` + currentBackgroundImage;
+    const element = document.getElementById(elementId)
+    element.classList.add("highlight");
 }
 
 function unhighlight(elementId) {
-    const currentBackgroundImage = document.getElementById(elementId).style.backgroundImage;
-    const backgroundImageWithoutHighlight = currentBackgroundImage.replaceAll(`${highlightedUrl}, `, ``);
-    document.getElementById(elementId).style.backgroundImage = backgroundImageWithoutHighlight;
+    const element = document.getElementById(elementId)
+    element.classList.remove("highlight");
 }
 
 
-function createControlButton(id, subClassName, hoverText, color, image, onclick) {
-    return createButtonForMap(id, `control-button ${subClassName}`, hoverText, color, image, undefined, undefined, onclick);
+function createControlButton(id, subClassName, hoverText, color, onclick) {
+    return createButtonForMap(id, `control-button ${subClassName}`, hoverText, color, undefined, undefined, onclick);
 }
 
-function createButtonForMap(id, className, hoverText, color, image, left, top, onclick) {
+function createButtonForMap(id, className, hoverText, color, left, top, onclick) {
     const span = document.createElement('span');
-    span.style.backgroundImage = image;
     span.style.color = color;
     span.id = id;
     span.onclick = onclick;
@@ -250,11 +243,11 @@ function initializeChecks() {
 }
 
 function initializeControlButtons() {
-    const saveButton = createControlButton("save-span", "save", "Save", "black", "url(images/save.png)", new Function('saveChecks()'));
-    const loadButton = createControlButton("load-span", "load", "Load", "black", "url(images/load.png)", new Function('loadChecks()'));
-    const versionButton = createControlButton(versionButtonId, "version", "Game Version", "black", undefined, new Function('toggleVersion()'));
-    const flipPanelsButton = createControlButton("flip-panels-span", "flipPanels", "Flip Panels", "black", "url(images/flip.png)", new Function('toggleFlipPanels()'));
-    const lockSavedChecksButton = createControlButton(lockButtonId, "lockSaved", "Lock Saved Checks", "black", undefined, new Function('toggleLockSavedChecks()'));
+    const saveButton = createControlButton("save-span", "save", "Save", "black", new Function('saveChecks()'));
+    const loadButton = createControlButton("load-span", "load", "Load", "black", new Function('loadChecks()'));
+    const versionButton = createControlButton(versionButtonId, "version", "Game Version", "black", new Function('toggleVersion()'));
+    const flipPanelsButton = createControlButton("flip-panels-span", "flipPanels", "Flip Panels", "black", new Function('toggleFlipPanels()'));
+    const lockSavedChecksButton = createControlButton(lockButtonId, "lockSaved", "Lock Saved Checks", "black", new Function('toggleLockSavedChecks()'));
 
     controlsDiv.appendChild(saveButton);
     controlsDiv.appendChild(loadButton);
@@ -269,13 +262,12 @@ function initializeMapCheck(checkIndex) {
     const horizontalOffsetPercent = getHorizontalOffsetPercent(checks[checkIndex].x);
     const cssLeft = getCssPositionFromPercentValue(horizontalOffsetPercent);
     const cssTop = getCssPositionFromPercentValue(checks[checkIndex].y);
-    const checkButton = createButtonForMap(getCheckId(checkIndex), className, checks[checkIndex].name, "black", 'url(images/poi.png)', cssLeft, cssTop, new Function(`toggleCheck("${checkIndex}")`));
+    const checkButton = createButtonForMap(getCheckId(checkIndex), className, checks[checkIndex].name, "black", cssLeft, cssTop, new Function(`toggleCheck("${checkIndex}")`));
     
     // Check elements utilize a css transform, so z-index cannot be relied upon to stack tooltips above check elements
     // Elements ordered lower in the DOM draw above those ordered higher, so if we order the children according to their y-axis offset,
     //   then the tooltips (which appear north of the check button on hover) should draw in front of any check buttons with similar y position to the tooltip
     if (!checksDiv.hasChildNodes()) {
-        console.log(`no other children found`)
         checksDiv.appendChild(checkButton);
         return;
     }
