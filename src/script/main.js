@@ -108,6 +108,7 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
     span.style.top = top;
     span.className = className;
     childSpan = document.createElement('span');
+    childSpan.id = `${id}-tooltip`;
     childSpan.className = 'tooltip';
     childSpan.innerHTML = hoverText;
     span.appendChild(childSpan);
