@@ -10,7 +10,7 @@ const lockButtonId = "lock-saved-checks-span";
 const lockImageUrl = "url(images/lock.png)"
 const unlockImageUrl = "url(images/unlock.png)";
 
-const separatorBasePercentOffsetFromLeft = 50.7; // Constant determined by the image used for the map background
+const separatorBasePercentOffsetFromLeft = 0.507; // Constant determined by the image used for the map background
 
 let currentGameVersion = undefined;
 let shouldFlipPanels = false;
@@ -114,49 +114,54 @@ function createButtonForMap(id, className, hoverText, color, image, left, top, o
     return span;
 }
 
-function getHorizontalOffset(baseLocation) {
-    const basePercentOffsetFromLeft = Number.parseFloat(baseLocation);
-
-    let offset = basePercentOffsetFromLeft
-    let separatorOffset = separatorBasePercentOffsetFromLeft;
-    if (shouldFlipPanels) {
-        offset = getPanelFlipOffset(basePercentOffsetFromLeft, separatorBasePercentOffsetFromLeft)
-        separatorOffset = 100 - separatorBasePercentOffsetFromLeft;
-    }
-
-    if (currentGameVersion === GameVersion.PAL) {
-        offset = getPalMirrorOffset(offset, separatorOffset);
-    }
-    
-    return offset + "%";
+function getCssPositionFromPercentValue(value) {
+    return `${value * 100}%`;
 }
 
-function getPanelFlipOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
+function getPanelFlipOffsetPercent(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
     const isRightOfSeparator = percentOffsetFromLeft > separatorPercentOffsetFromLeft;
     const panelFlipOffset = isRightOfSeparator
         ? percentOffsetFromLeft - separatorPercentOffsetFromLeft
-        : percentOffsetFromLeft + (100 - separatorPercentOffsetFromLeft);
+        : percentOffsetFromLeft + (1 - separatorPercentOffsetFromLeft);
     return panelFlipOffset;
 }
 
-function getPalMirrorOffset(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
+function getPalMirrorOffsetPercent(percentOffsetFromLeft, separatorPercentOffsetFromLeft) {
     const isLeftOfSeparator = percentOffsetFromLeft < separatorPercentOffsetFromLeft;
     const leftExtent = isLeftOfSeparator
         ? 0
         : separatorPercentOffsetFromLeft;
     const rightExtent = isLeftOfSeparator
         ? separatorPercentOffsetFromLeft
-        : 100; // TODO: make this 0...1 range
+        : 1;
 
     const mirroredPercentOffset = leftExtent + (rightExtent - percentOffsetFromLeft)
     return mirroredPercentOffset;
+}
+
+function getHorizontalOffsetPercent(baseOffsetPercent) {
+    const basePercentOffsetFromLeft = baseOffsetPercent;
+
+    let offset = basePercentOffsetFromLeft
+    let separatorOffset = separatorBasePercentOffsetFromLeft;
+    if (shouldFlipPanels) {
+        offset = getPanelFlipOffsetPercent(basePercentOffsetFromLeft, separatorBasePercentOffsetFromLeft)
+        separatorOffset = 1 - separatorBasePercentOffsetFromLeft;
+    }
+
+    if (currentGameVersion === GameVersion.PAL) {
+        offset = getPalMirrorOffsetPercent(offset, separatorOffset);
+    }
+    
+    return offset
 }
 
 function updateButtonLocations() {
     const checkButtons = document.getElementsByClassName("check");
     for (i = 0; i < checkButtons.length; i++) {
         const checkIndex = checkButtons[i].id.replaceAll(`check-`, '');
-        checkButtons[i].style.left = getHorizontalOffset(checks[checkIndex].x);
+        const horizontalOffsetPercent = getHorizontalOffsetPercent(checks[checkIndex].x);
+        checkButtons[i].style.left = getCssPositionFromPercentValue(horizontalOffsetPercent);
     }
 }
 
@@ -262,7 +267,10 @@ function initializeMap() {
     for (k = 0; k < checks.length; k++) {
         const stateClassName = getClassNameFromState(checks[k].state);
         const className = `mapspan check ${stateClassName}`;
-        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', getHorizontalOffset(checks[k].x), checks[k].y, new Function(`toggleCheck("${k}")`));
+        const horizontalOffsetPercent = getHorizontalOffsetPercent(checks[k].x);
+        const cssLeft = getCssPositionFromPercentValue(horizontalOffsetPercent);
+        const cssRight = getCssPositionFromPercentValue(checks[k].y);
+        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', cssLeft, cssRight, new Function(`toggleCheck("${k}")`));
         checksDiv.appendChild(checkButton);
     }
 }
