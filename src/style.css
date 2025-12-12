@@ -9,6 +9,7 @@ body {
     position: relative;
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    image-rendering: pixelated;
     /* Constant determined by the aspect ratio of the map images */
     aspect-ratio: 4930 / 2414;
     max-width: 100rem;
