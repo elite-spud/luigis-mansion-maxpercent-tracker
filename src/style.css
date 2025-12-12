@@ -10,7 +10,7 @@ body {
     background-repeat: no-repeat;
     background-size: 100% 100%;
     /* Constant determined by the aspect ratio of the map images */
-    aspect-ratio: 3176 / 1696;
+    aspect-ratio: 4930 / 2414;
     max-width: 100rem;
     max-height: 100rem;
 }
@@ -29,10 +29,6 @@ body {
 
 .map.pal.flip {
     background-image: url("images/map-pal-flip.png");
-}
-
-.invisible {
-    visibility: hidden;
 }
 
 .bottom-container {
@@ -105,8 +101,8 @@ body {
 }
 
 .check{
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
     background-size: 100% 100%;
     position: absolute;
     /* center element on position instead of using top-left corner */
@@ -130,7 +126,7 @@ body {
     background-color: rgb(0, 255, 0);
 }
 
-.mapspan .tooltip {
+.check .tooltip {
     visibility: hidden;
     width: 120px;
     background-color: black;
@@ -145,7 +141,7 @@ body {
     margin-left: -60px;
 }
 
-.mapspan .tooltip::after {
+.check .tooltip::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -156,11 +152,11 @@ body {
     border-color: black transparent transparent transparent;
 }
 
-.mapspan .tooltip:hover {
+.check .tooltip:hover {
     display: none;
 }
 
-.mapspan:hover .tooltip {
+.check:hover .tooltip {
     visibility: visible
 }
 

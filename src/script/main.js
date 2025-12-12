@@ -76,7 +76,7 @@ function getClassNameFromState(checkState) {
 function refreshCheck(checkIndex) {
     const stateClass = getClassNameFromState(checks[checkIndex].state);
     const checkId = getCheckId(checkIndex);
-    document.getElementById(checkId).className = 'mapspan check ' + stateClass;
+    document.getElementById(checkId).className = 'check ' + stateClass;
 }
 
 const highlightedUrl = `url("images/highlighted.png")`;
@@ -263,16 +263,45 @@ function initializeControlButtons() {
     controlsDiv.appendChild(lockSavedChecksButton);
 }
 
+function initializeMapCheck(checkIndex) {
+    const stateClassName = getClassNameFromState(checks[checkIndex].state);
+    const className = `check ${stateClassName}`;
+    const horizontalOffsetPercent = getHorizontalOffsetPercent(checks[checkIndex].x);
+    const cssLeft = getCssPositionFromPercentValue(horizontalOffsetPercent);
+    const cssTop = getCssPositionFromPercentValue(checks[checkIndex].y);
+    const checkButton = createButtonForMap(getCheckId(checkIndex), className, checks[checkIndex].name, "black", 'url(images/poi.png)', cssLeft, cssTop, new Function(`toggleCheck("${checkIndex}")`));
+    
+    // Check elements utilize a css transform, so z-index cannot be relied upon to stack tooltips above check elements
+    // Elements ordered lower in the DOM draw above those ordered higher, so if we order the children according to their y-axis offset,
+    //   then the tooltips (which appear north of the check button on hover) should draw in front of any check buttons with similar y position to the tooltip
+    if (!checksDiv.hasChildNodes()) {
+        console.log(`no other children found`)
+        checksDiv.appendChild(checkButton);
+        return;
+    }
+
+    let highestChildSouthOfNewButton = undefined;
+    for (const child of checksDiv.children) { // TODO: make this a binary search
+        if (child.style.top < cssTop) {
+            continue;
+        }
+        if (highestChildSouthOfNewButton === undefined || child.style.top < highestChildSouthOfNewButton.style.top) {
+            highestChildSouthOfNewButton = child;
+            continue;
+        }
+    }
+
+    if (highestChildSouthOfNewButton === undefined) {
+        checksDiv.appendChild(checkButton);
+    } else {
+        checksDiv.insertBefore(checkButton, highestChildSouthOfNewButton);
+    }
+}
+
 // Initialize all checks on the map
 function initializeMap() {
     for (k = 0; k < checks.length; k++) {
-        const stateClassName = getClassNameFromState(checks[k].state);
-        const className = `mapspan check ${stateClassName}`;
-        const horizontalOffsetPercent = getHorizontalOffsetPercent(checks[k].x);
-        const cssLeft = getCssPositionFromPercentValue(horizontalOffsetPercent);
-        const cssRight = getCssPositionFromPercentValue(checks[k].y);
-        const checkButton = createButtonForMap(getCheckId(k), className, checks[k].name, "black", 'url(images/poi.png)', cssLeft, cssRight, new Function(`toggleCheck("${k}")`));
-        checksDiv.appendChild(checkButton);
+        initializeMapCheck(k);
     }
 }
 
